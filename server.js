@@ -71,7 +71,9 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ error: "Error en el login" });
     }
 });
-
+app.get('/', (req, res) => {
+    res.send('Servidor Vivo');
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor funcionando en http://localhost:${PORT}`);
