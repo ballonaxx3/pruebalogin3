@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login y Registro Railway</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 350px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .toggle { text-align: center; margin-top: 15px; cursor: pointer; color: blue; text-decoration: underline; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-form">
+        <h2>Iniciar Sesión</h2>
+        <input type="email" id="login-email" placeholder="Correo Electrónico">
+        <input type="password" id="login-pass" placeholder="Contraseña">
+        <button onclick="login()">Entrar</button>
+        <p class="toggle" onclick="toggleForms()">¿No tienes cuenta? Regístrate</p>
+    </div>
+
+    <div id="register-form" class="hidden">
+        <h2>Crear Cuenta</h2>
+        <input type="text" id="reg-nombre" placeholder="Nombre completo">
+        <input type="email" id="reg-correo" placeholder="Correo Electrónico">
+        <input type="text" id="reg-numero" placeholder="Número de teléfono">
+        <input type="password" id="reg-pass" placeholder="Contraseña">
+        <input type="password" id="reg-confirm" placeholder="Confirmar contraseña">
+        <button onclick="register()">Registrarme</button>
+        <p class="toggle" onclick="toggleForms()">¿Ya tienes cuenta? Logueate</p>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:3000"; // Cambia esto por tu URL de Railway cuando lo subas
+
+    function toggleForms() {
+        document.getElementById('login-form').classList.toggle('hidden');
+        document.getElementById('register-form').classList.toggle('hidden');
+    }
+
+    async function register() {
+        const nombre = document.getElementById('reg-nombre').value;
+        const correo = document.getElementById('reg-correo').value;
+        const numero = document.getElementById('reg-numero').value;
+        const password = document.getElementById('reg-pass').value;
+        const confirmarPassword = document.getElementById('reg-confirm').value;
+
+        const res = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, correo, numero, password, confirmarPassword })
+        });
+        const data = await res.json();
+        alert(data.msg || data.error);
+    }
+
+    async function login() {
+        const correo = document.getElementById('login-email').value;
+        const password = document.getElementById('login-pass').value;
+
+        const res = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo, password })
+        });
+        const data = await res.json();
+        if(data.token) {
+            alert("¡Bienvenido " + data.user.nombre + "!");
+            localStorage.setItem('token', data.token); // Guardamos el token
+        } else {
+            alert(data.msg);
+        }
+    }
+</script>
+
+</body>
+</html>
