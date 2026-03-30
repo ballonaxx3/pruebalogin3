@@ -8,18 +8,37 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración de la conexión (Usando las variables que pusiste en Railway)
+// Conexión a la base de datos usando las variables de Railway
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT
-}).promise(); // El .promise() es vital para que funcione el 'await db.query'
+}).promise();
 
-// Ruta de prueba para ver en el navegador
+// ESTO ES PARA QUE EL LINK NO SALGA VACÍO
 app.get('/', (req, res) => {
-    res.send('Servidor en línea y conectado a Railway');
+    res.send('<h1>🚀 Servidor de Login Funcionando</h1>');
 });
 
-// ... aquí sigue tu código de app.post('/register' ...
+// Ruta de Registro
+app.post('/register', async (req, res) => {
+    const { nombre, correo, numero, password, confirmarPassword } = req.body;
+    if (password !== confirmarPassword) return res.status(400).json({ error: "No coinciden" });
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.query('INSERT INTO usuarios1 (nombre, correo, numero, password) VALUES (?, ?, ?, ?)', 
+        [nombre, correo, numero, hashedPassword]);
+        res.json({ mensaje: "Usuario registrado" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// El puerto debe ser dinámico para Railway
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor en puerto ${PORT}`);
+});
